@@ -9,6 +9,9 @@
 # docker volume
 /postgres-data/
 
+/dist/
+
+
 # testing
 /coverage
 
@@ -16,6 +19,7 @@
 /.next/
 /out/
 
+/plan.txt
 # production
 /build
 
