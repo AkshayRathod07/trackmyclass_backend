@@ -8,7 +8,8 @@
     "start": "node dist/server.ts",
     "build": "tsc",
     "dev": "nodemon --exec ts-node src/server.ts",
-    "lint": "eslint ."
+    "lint": "npx eslint .",
+    "prepare": "husky"
   },
   "author": "",
   "license": "ISC",
@@ -36,7 +37,12 @@
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.4.0"
   },
-  "eslintIgnore": [
-    "node_modules"
-  ]
+  "lint-staged": {
+  "*.{ts,tsx}": "eslint --fix"
+},
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
 }

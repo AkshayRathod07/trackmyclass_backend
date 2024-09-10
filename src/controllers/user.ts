@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import User from '../models/User';
 import { z } from 'zod';
 
@@ -11,7 +12,7 @@ const signupSchema = z.object({
   phoneNumber: z.string().max(10),
 });
 
-const signup = async (req: Request, res: any) => {
+const signup = async (req: Request, res: Response) => {
   try {
     const result = signupSchema.safeParse(req.body);
     if (!result.success) {
