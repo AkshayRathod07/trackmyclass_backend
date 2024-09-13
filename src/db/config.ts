@@ -2,16 +2,11 @@ import mongoose from 'mongoose';
 
 import 'dotenv/config';
 
-const db = process.env.MONGO_URI;
-if (!db) {
-  throw new Error('You must provide a string to connect to MongoDB Atlas');
-}
+const _config = {
+  port: process.env.PORT,
+  databaseUrl: process.env.MONGO_ATLAS_CONNECTION,
+  nodeEnv: process.env.NODE_ENV,
+  jwtSecret: process.env.JWT_SECRET,
+};
 
-mongoose
-  .connect(db)
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch((error) => {
-    console.log('Error:', error);
-  });
+export const config = Object.freeze(_config);

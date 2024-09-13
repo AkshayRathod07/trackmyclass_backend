@@ -1,19 +1,16 @@
-import express from 'express';
-import './db/config';
-import routes from './routes';
-import { Request, Response } from 'express';
-const app = express();
+import app from './app';
+import { config } from './db/config';
+import connectDb from './db/db';
 
-const port = process.env.PORT || 4000;
+const startServer = async () => {
+  // connect database
+  await connectDb();
 
-app.use(express.json());
+  const port = config.port || 3000;
 
-app.use('/', routes);
+  app.listen(port, () => {
+    console.log(`Listening on Port: ${port}`);
+  });
+};
 
-app.get('/', (req: Request, res: Response) => {
-  res.status(200).json({ message: 'Welcome to the API' });
-});
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+startServer();
