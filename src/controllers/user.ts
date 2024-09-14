@@ -1,6 +1,9 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import User from '../models/User';
 import { z } from 'zod';
+import bcrypt from 'bcrypt';
+import { config } from '../db/config';
+import { sign } from 'jsonwebtoken';
 
 const signupSchema = z.object({
   firstName: z.string().max(20).min(2),
@@ -14,36 +17,47 @@ const signupSchema = z.object({
 
 const signup = async (req: Request, res: Response) => {
   try {
+    // Validate the request data
     const result = signupSchema.safeParse(req.body);
     if (!result.success) {
-      // modify the error response to be more user-friendly
       const errors = result.error.errors.map((err) => ({
-        field: err.path[0], // e.g., 'firstName'
-        message: err.message, // e.g., 'String must contain at least 2 character(s)'
+        field: err.path[0],
+        message: err.message,
       }));
-
-      return res.status(400).json({
-        errors, // Simplified array of field-specific error messages
-      });
+      return res.status(400).json({ errors });
     }
-    // If validation succeeded, you can safely use `result.data`
-    const validatedData = result?.data;
 
-    // existingUser check logic
-    const existing = await User.findOne({ email: validatedData.email });
+    // Destructure the validated data and hash the password
+    const validatedData = result.data;
+    const { password, ...rest } = validatedData; // Extract password from the rest of the fields
+    const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
+
+    // Check if the user already exists
+    const existing = await User.findOne({ email: rest.email });
     if (existing) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // create new user logic using create method
-    const user = await User.create(validatedData);
+    // Create new user by combining rest of the data with the hashed password
+    const user = await User.create({ ...rest, password: hashedPassword });
 
-    return res
-      .status(201)
-      .json({ success: true, message: 'User created successfully' });
+    //Token Generation
+    const token = sign({ sub: user._id }, config.jwtSecret as string, {
+      expiresIn: '7d',
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      accessToken: token,
+    });
   } catch (error) {
     res.status(400).send(error);
   }
 };
 
-export default signup;
+const signIn = async (req: Request, res: Response, next: NextFunction) => {
+  return res.json({ message: 'for signIn' });
+};
+
+export { signup, signIn };
