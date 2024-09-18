@@ -1,0 +1,10 @@
+teacher role details
+
+  "firstName": "Alice",
+  "lastName": "Smith",
+  "email": "alice.smith@example.com",
+  "password": "mypassword2024",
+  "role": "admin",
+  "profilePic": "http://example.com/alice-profile.jpg",
+  "phoneNumber": "0987654321"
+
