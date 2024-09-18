@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import globalErrorHandler from './middleware/globalErrorHandler';
 import userRouter from './routes/user';
+import collegeRouter from './routes/college';
 
 const app = express();
 app.use(express.json());
@@ -11,6 +12,7 @@ app.get('/', (req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use('/api/users', userRouter);
+app.use('/api/colleges', collegeRouter);
 
 app.use(globalErrorHandler);
 
