@@ -34,5 +34,7 @@ const attendanceSchema: Schema<IAttendance> = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Unique index to for no duplicate attendance
+attendanceSchema.index({ sessionId: 1, studentId: 1 }, { unique: true });
 const Attendance = mongoose.model<IAttendance>('Attendance', attendanceSchema);
 export default Attendance;

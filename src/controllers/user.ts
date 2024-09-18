@@ -87,9 +87,13 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     // Generate JWT token
-    const token = sign({ sub: user._id }, config.jwtSecret as string, {
-      expiresIn: '7d',
-    });
+    const token = sign(
+      { sub: user._id, role: user.role },
+      config.jwtSecret as string,
+      {
+        expiresIn: '7d',
+      }
+    );
 
     // Respond with token
     return res
