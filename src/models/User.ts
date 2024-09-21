@@ -1,16 +1,18 @@
 import mongoose, { Schema, Document } from 'mongoose';
-
+import { role, userRole } from '../enum/user.enum';
 // Interface for the User
 interface IUser extends Document {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
-  role: 'student' | 'admin' | 'superAdmin';
+  role: userRole;
   profilePic?: string;
   phoneNumber: string;
   sessions: mongoose.Schema.Types.ObjectId[]; // List of session references
   attendance: mongoose.Schema.Types.ObjectId[]; // List of attendance records
+  invitedBy?: number;
+  organizationId: mongoose.Schema.Types.ObjectId;
 }
 
 // Create schema for User
@@ -46,8 +48,12 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['student', 'admin', 'superAdmin'], // Restrict role to allowed values
-      default: 'student', // Set default role as 'student'
+      enum: role,
+      default: userRole.STUDENT,
+    },
+    organizationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Organization',
     },
     profilePic: {
       type: String, // Optional profile picture URL
@@ -77,6 +83,9 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
         ref: 'Attendance', // Reference to Attendance model
       },
     ],
+    invitedBy: {
+      type: Number,
+    },
   },
   { timestamps: true } // Add createdAt, updatedAt automatically
 );

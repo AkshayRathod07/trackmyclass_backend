@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import User from '../models/User';
+import Organization from '../models/Organization';
 import { z } from 'zod';
 import bcrypt from 'bcrypt';
 import { config } from '../db/config';
@@ -12,9 +13,11 @@ const signupSchema = z.object({
   lastName: z.string(),
   email: z.string().email(),
   password: z.string().min(6),
-  role: z.enum(['student', 'admin', 'superAdmin']),
+  role: z.enum(['STUDENT', 'ADMIN', 'SUPERADMIN']),
   profilePic: z.string(),
   phoneNumber: z.string().max(10),
+  organizationName: z.string(),
+  organizationId: z.string().optional(),
 });
 
 // Define the sign-in schema
@@ -26,7 +29,6 @@ const signInSchema = z.object({
 // Signup handler
 const signup = async (req: Request, res: Response) => {
   try {
-    // Validate the request data
     const result = signupSchema.safeParse(req.body);
     if (!result.success) {
       const errors = result.error.errors.map((err) => ({
@@ -36,22 +38,47 @@ const signup = async (req: Request, res: Response) => {
       return res.status(400).json({ errors });
     }
 
-    // Destructure the validated data and hash the password
-    const { password, ...rest } = result.data;
+    const { password, role, organizationName, ...rest } = result.data;
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Check if the user already exists
+    // Check if user exists
     const existing = await User.findOne({ email: rest.email });
     if (existing) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Create new user with the hashed password
-    await User.create({ ...rest, password: hashedPassword });
+    let organizationId;
+
+    // If role is admin or superadmin, create organization
+    if (role === 'ADMIN' || role === 'SUPERADMIN') {
+      const adminOrganization = await Organization.create({
+        name: organizationName,
+        isActive: true,
+      });
+      organizationId = adminOrganization._id; // Store the organization ID
+    } else {
+      // For student role, ensure organizationId is provided
+      if (!rest?.organizationId) {
+        return res
+          .status(400)
+          .json({ message: 'OrganizationId is required for students.' });
+      }
+      organizationId = rest.organizationId;
+    }
+    console.log('organizationId check=>', organizationId);
+
+    // Create the user
+    const newUser = await User.create({
+      ...rest,
+      password: hashedPassword,
+      role,
+      organizationId,
+    });
 
     return res.status(201).json({
       success: true,
       message: 'User created successfully',
+      user: newUser,
     });
   } catch (error) {
     console.error('Signup error:', error);
