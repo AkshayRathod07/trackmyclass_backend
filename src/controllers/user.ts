@@ -232,7 +232,12 @@ const verifyCode = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Code not found' });
     }
 
-    return res.status(200).json({ message: 'Code verified successfully' });
+    return res.status(200).json({
+      message: 'Code verified successfully',
+      email: existing.email,
+      role: existing.role,
+      organizationName: existing.organizationName,
+    });
   } catch (error) {
     console.error('Verify code error:', error);
   }
