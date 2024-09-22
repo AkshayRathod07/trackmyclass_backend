@@ -10,6 +10,7 @@ import generateTextCode from '../utilities/textCodeGenerator';
 import InviteCode from '../models/Invitecode';
 import { sendEmail } from '../utilities/nodeMailer';
 import inviteTemplate from '../utilities/email-templates/inviteTemplate';
+import { AuthRequest } from '../middleware/auth';
 
 // Define the signup schema
 const signupSchema = z.object({
@@ -78,7 +79,6 @@ const signup = async (req: Request, res: Response) => {
       }
       organizationId = rest.organizationId;
     }
-    console.log('organizationId check=>', organizationId);
 
     // Create the user
     const newUser = await User.create({
@@ -159,8 +159,7 @@ const inviteUser = async (req: Request, res: Response) => {
       return res.status(400).json({ errors });
     }
 
-    const { email, role, organizationId, organizationName, invitedBy } =
-      result.data;
+    const { email, role, organizationId, organizationName } = result.data;
 
     // Check if user exists
     const existing = await User.findOne({ email });
@@ -171,6 +170,22 @@ const inviteUser = async (req: Request, res: Response) => {
     // Create the code
     const code = generateTextCode(8);
 
+    // get invitedBy from jwt token in headers
+    console.log('_req', (req as AuthRequest).userId);
+    const invitedBy = (req as AuthRequest).userId;
+    // const invitedBy = req.headers.authorization?.split(' ')[1];
+    // console.log('invitedBy check=>', invitedBy);
+
+    // using token to get user details
+
+    // get invitedBy user details
+    const invitedByUser = await User.findById(invitedBy);
+
+    //invitedByUser undefined check
+    if (!invitedByUser) {
+      return res.status(404).json({ message: 'InvitedBy user not found' });
+    }
+
     // Save the code
     await InviteCode.create({
       code,
@@ -180,14 +195,6 @@ const inviteUser = async (req: Request, res: Response) => {
       organizationName,
       invitedBy,
     });
-
-    // get invitedBy user details
-    const invitedByUser = await User.findById(invitedBy);
-
-    //invitedByUser undefined check
-    if (!invitedByUser) {
-      return res.status(404).json({ message: 'InvitedBy user not found' });
-    }
 
     const html_body: string = inviteTemplate({
       first_name: invitedByUser?.firstName,
@@ -213,4 +220,22 @@ const inviteUser = async (req: Request, res: Response) => {
   }
 };
 
-export { signup, signIn, inviteUser };
+// verify code
+const verifyCode = async (req: Request, res: Response) => {
+  try {
+    const { code } = req.body;
+    const existing = await InviteCode.findOne({
+      code,
+    });
+
+    if (!existing) {
+      return res.status(404).json({ message: 'Code not found' });
+    }
+
+    return res.status(200).json({ message: 'Code verified successfully' });
+  } catch (error) {
+    console.error('Verify code error:', error);
+  }
+};
+
+export { signup, signIn, inviteUser, verifyCode };
