@@ -1,14 +1,34 @@
 import { Request, Response } from 'express';
 import CollegeModel from '../models/College';
+import { z } from 'zod';
+
+const collegeSchema = z.object({
+  name: z.string(),
+  address: z.object({
+    street: z.string(),
+    city: z.string(),
+    state: z.string(),
+    postalCode: z.string(),
+  }),
+  location: z.object({
+    latitude: z.number(),
+    longitude: z.number(),
+  }),
+});
 
 const createCollege = async (req: Request, res: Response) => {
   try {
-    const { name, address, location } = req.body;
-
-    // Validate request body
-    if (!name || !address || !location) {
-      return res.status(400).json({ message: 'Missing required fields' });
+    // Validate the request data
+    const result = collegeSchema.safeParse(req.body);
+    if (!result.success) {
+      const errors = result.error.errors.map((err) => ({
+        field: err.path[0],
+        message: err.message,
+      }));
+      return res.status(400).json({ errors });
     }
+
+    const { name, address, location } = result.data;
 
     // Create a new college instance
     const newCollege = new CollegeModel({
