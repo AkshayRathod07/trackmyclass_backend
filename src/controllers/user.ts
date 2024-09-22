@@ -6,6 +6,10 @@ import bcrypt from 'bcrypt';
 import { config } from '../db/config';
 import { sign } from 'jsonwebtoken';
 import createHttpError from 'http-errors';
+import generateTextCode from '../utilities/textCodeGenerator';
+import InviteCode from '../models/Invitecode';
+import { sendEmail } from '../utilities/nodeMailer';
+import inviteTemplate from '../utilities/email-templates/inviteTemplate';
 
 // Define the signup schema
 const signupSchema = z.object({
@@ -24,6 +28,15 @@ const signupSchema = z.object({
 const signInSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
+});
+
+const inviteUserSchema = z.object({
+  email: z.string().email(),
+  role: z.enum(['STUDENT', 'TEACHER']),
+  organizationId: z.string(),
+  organizationName: z.string(),
+  invitedBy: z.string().optional(),
+  base_url_client: z.string(),
 });
 
 // Signup handler
@@ -91,7 +104,7 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
   // Validate the request data
   const result = signInSchema.safeParse(req.body);
   if (!result.success) {
-    const errors = result.error.errors.map((err) => ({
+    result.error.errors.map((err) => ({
       field: err.path[0],
       message: err.message,
     }));
@@ -132,4 +145,72 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { signup, signIn };
+// invite user in organization
+
+const inviteUser = async (req: Request, res: Response) => {
+  try {
+    const result = inviteUserSchema.safeParse(req.body);
+    // handle validation errors
+    if (!result.success) {
+      const errors = result.error.errors.map((err) => ({
+        field: err.path[0],
+        message: err.message,
+      }));
+      return res.status(400).json({ errors });
+    }
+
+    const { email, role, organizationId, organizationName, invitedBy } =
+      result.data;
+
+    // Check if user exists
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    // Create the code
+    const code = generateTextCode(8);
+
+    // Save the code
+    await InviteCode.create({
+      code,
+      email,
+      role,
+      organizationId,
+      organizationName,
+      invitedBy,
+    });
+
+    // get invitedBy user details
+    const invitedByUser = await User.findById(invitedBy);
+
+    //invitedByUser undefined check
+    if (!invitedByUser) {
+      return res.status(404).json({ message: 'InvitedBy user not found' });
+    }
+
+    const html_body: string = inviteTemplate({
+      first_name: invitedByUser?.firstName,
+      last_name: invitedByUser?.lastName,
+      organization_name: organizationName,
+      role,
+      base_url_client: result.data.base_url_client,
+      code,
+      image_url: '', // Provide a valid image URL
+      color: '#8928c6',
+    });
+
+    const data_to_send = {
+      email,
+      subject: `Invitation to join ${organizationName}`,
+      html: html_body,
+    };
+
+    // Send the email
+    await sendEmail(data_to_send);
+  } catch (error) {
+    console.error('Invite user error:', error);
+  }
+};
+
+export { signup, signIn, inviteUser };

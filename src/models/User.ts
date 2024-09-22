@@ -11,7 +11,7 @@ interface IUser extends Document {
   phoneNumber: string;
   sessions: mongoose.Schema.Types.ObjectId[]; // List of session references
   attendance: mongoose.Schema.Types.ObjectId[]; // List of attendance records
-  invitedBy?: number;
+  invitedBy?: mongoose.Schema.Types.ObjectId;
   organizationId: mongoose.Schema.Types.ObjectId;
 }
 
@@ -84,7 +84,8 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       },
     ],
     invitedBy: {
-      type: Number,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
     },
   },
   { timestamps: true } // Add createdAt, updatedAt automatically
