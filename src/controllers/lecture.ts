@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from 'express';
 import { z } from 'zod';
 import User from '../models/User';
 import Lecture from '../models/Lecture';
-import Sessions from '../models/Sessions';
 
 const createLectureSchema = z.object({
   teacherId: z.string(),
@@ -42,11 +41,15 @@ const createLecture = async (req: Request, res: Response) => {
     });
 
     return res.status(201).json({
-      newLecture: newLecture,
+      Success: true,
       message: 'Lecture created successfully',
     });
   } catch (error) {
     console.error('Create lecture error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while creating lecture',
+    });
   }
 };
 

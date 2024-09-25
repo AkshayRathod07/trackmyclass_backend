@@ -217,6 +217,7 @@ const inviteUser = async (req: Request, res: Response) => {
     await sendEmail(data_to_send);
   } catch (error) {
     console.error('Invite user error:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -240,6 +241,7 @@ const verifyCode = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Verify code error:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 

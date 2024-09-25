@@ -3,6 +3,8 @@ import globalErrorHandler from './middleware/globalErrorHandler';
 import userRouter from './routes/user';
 import collegeRouter from './routes/college';
 import lectureRouter from './routes/lecture';
+import SessionRouter from './routes/session';
+import AttendanceRouter from './routes/attendance';
 
 const app = express();
 app.use(express.json());
@@ -16,6 +18,8 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/college', collegeRouter);
 
 app.use('/api/v1/lecture', lectureRouter);
+app.use('/api/v1/session', SessionRouter);
+app.use('/api/v1/attendance', AttendanceRouter);
 
 app.use(globalErrorHandler);
 
