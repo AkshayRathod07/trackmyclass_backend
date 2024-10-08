@@ -1,5 +1,3 @@
-import mongoose from 'mongoose';
-
 import 'dotenv/config';
 
 const _config = {
@@ -7,6 +5,7 @@ const _config = {
   databaseUrl: process.env.MONGO_ATLAS_CONNECTION,
   nodeEnv: process.env.NODE_ENV,
   jwtSecret: process.env.JWT_SECRET,
+  frontEndDomain: process.env.FRONT_END_DOMAIN,
 };
 
 export const config = Object.freeze(_config);
