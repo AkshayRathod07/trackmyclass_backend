@@ -17,3 +17,5 @@ app.use('/api/colleges', collegeRouter);
 app.use(globalErrorHandler);
 
 export default app;
+
+// Writing this for testing purpose of commit
