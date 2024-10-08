@@ -217,6 +217,7 @@ const inviteUser = async (req: Request, res: Response) => {
     await sendEmail(data_to_send);
   } catch (error) {
     console.error('Invite user error:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -232,9 +233,15 @@ const verifyCode = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Code not found' });
     }
 
-    return res.status(200).json({ message: 'Code verified successfully' });
+    return res.status(200).json({
+      message: 'Code verified successfully',
+      email: existing.email,
+      role: existing.role,
+      organizationName: existing.organizationName,
+    });
   } catch (error) {
     console.error('Verify code error:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
