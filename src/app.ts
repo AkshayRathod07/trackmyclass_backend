@@ -11,8 +11,8 @@ app.get('/', (req: Request, res: Response, next: NextFunction) => {
   res.json({ message: 'welcome to routes' });
 });
 
-app.use('/api/users', userRouter);
-app.use('/api/colleges', collegeRouter);
+app.use('/api/v1/users', userRouter);
+app.use('/api/v1/college', collegeRouter);
 
 app.use(globalErrorHandler);
 

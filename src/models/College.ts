@@ -16,6 +16,7 @@ interface ICollege extends Document {
 }
 
 // College schema
+
 const CollegeSchema = new Schema<ICollege>({
   name: { type: String, required: true, unique: true }, // College name must be unique
   address: {
