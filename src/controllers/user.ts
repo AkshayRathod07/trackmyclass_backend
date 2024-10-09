@@ -52,6 +52,8 @@ const signup = async (req: Request, res: Response) => {
       return res.status(400).json({ errors });
     }
 
+    console.log(result);
+
     const { password, role, organizationName, ...rest } = result.data;
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -134,6 +136,8 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
         expiresIn: '7d',
       }
     );
+
+    console.log(token);
 
     // Respond with token
     return res

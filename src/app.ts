@@ -7,11 +7,7 @@ import { config } from './db/config';
 
 const app = express();
 
-app.use(
-  cors({
-    origin: config.frontEndDomain,
-  })
-);
+app.use(cors());
 
 app.use(express.json());
 

@@ -36,7 +36,7 @@ export const authTeacher = (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.role !== 'admin') {
+  if (req.role !== 'ADMIN') {
     console.log(req.role);
 
     return next(

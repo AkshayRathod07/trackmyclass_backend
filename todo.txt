@@ -8,3 +8,13 @@ teacher role details
   "profilePic": "http://example.com/alice-profile.jpg",
   "phoneNumber": "0987654321"
 
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "johndoe@example.com",
+  "password": "securepassword123",
+  "role": "ADMIN",
+  "profilePic": "https://example.com/profile-pic.jpg",
+  "phoneNumber": "1234567890",
+  "organizationName":"HAVARD"
+}
