@@ -63,6 +63,7 @@ const CreateSession = async (req: Request, res: Response) => {
       Success: true,
       newSession,
       message: 'Session created successfully',
+      sessionId: newSession._id,
     });
   } catch (error) {
     console.error('Create session error:', error);

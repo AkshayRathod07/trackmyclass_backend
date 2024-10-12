@@ -43,6 +43,8 @@ const createLecture = async (req: Request, res: Response) => {
     return res.status(201).json({
       Success: true,
       message: 'Lecture created successfully',
+      lectureId: newLecture._id,
+      teacherId: newLecture.teacherId,
     });
   } catch (error) {
     console.error('Create lecture error:', error);
