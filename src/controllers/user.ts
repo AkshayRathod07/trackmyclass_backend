@@ -91,7 +91,6 @@ const signup = async (req: Request, res: Response) => {
     return res.status(201).json({
       success: true,
       message: 'User created successfully',
-      user: newUser,
     });
   } catch (error) {
     console.error('Signup error:', error);
@@ -128,7 +127,7 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
 
     // Generate JWT token
     const token = sign(
-      { sub: user._id, role: user.role },
+      { sub: user._id, role: user.role, organizationId: user.organizationId },
       config.jwtSecret as string,
       {
         expiresIn: '7d',

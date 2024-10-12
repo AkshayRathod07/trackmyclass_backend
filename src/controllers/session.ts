@@ -7,12 +7,7 @@ import Sessions from '../models/Sessions';
 const createSessionSchema = z.object({
   teacherId: z.string(),
   lectureId: z.string(),
-  startTime: z.string().datetime({
-    message: 'Invalid datetime string! Must be UTC.',
-  }),
-  endTime: z.string().datetime({
-    message: 'Invalid datetime string! Must be UTC.',
-  }),
+
   isActive: z.boolean(),
 });
 

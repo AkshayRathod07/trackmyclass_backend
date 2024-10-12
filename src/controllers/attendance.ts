@@ -3,10 +3,10 @@ import { z } from 'zod';
 import User from '../models/User';
 import Sessions from '../models/Sessions';
 import Attendance from '../models/Attendance';
+import { AuthRequest } from '../middleware/auth';
 
 const createAttendanceSchema = z.object({
   sessionId: z.string(),
-  studentId: z.string(),
   attendedLectures: z.number(),
   status: z.enum(['Present', 'Absent']),
 });
@@ -32,8 +32,12 @@ const markAttendance = async (
       return res.status(400).json({ message: 'Session not found or inactive' });
     }
 
+    const studentId = (req as AuthRequest).userId;
+
+    console.log('studentIds', studentId);
+
     // Check if the student exists
-    const student = await User.findById(result?.data?.studentId);
+    const student = await User.findById(studentId);
     if (!student) {
       return res.status(400).json({ message: 'Student not found' });
     }

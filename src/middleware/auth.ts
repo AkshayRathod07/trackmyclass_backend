@@ -6,6 +6,7 @@ import { verify } from 'jsonwebtoken';
 export interface AuthRequest extends Request {
   userId?: string;
   role?: string; // Add role to the request interface
+  organizationId?: string;
 }
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
@@ -19,11 +20,13 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     const decoded = verify(parsedToken, config.jwtSecret as string) as {
       sub: string;
       role: string;
+      organizationId: string;
     };
 
     const _req = req as AuthRequest;
     _req.userId = decoded.sub;
     _req.role = decoded.role;
+    _req.organizationId = decoded.organizationId;
 
     next();
   } catch (error) {

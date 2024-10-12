@@ -6,10 +6,10 @@ import collegeRouter from './routes/college';
 import lectureRouter from './routes/lecture';
 import SessionRouter from './routes/session';
 import AttendanceRouter from './routes/attendance';
+import adminRouter from './routes/admin';
 
 import cors from 'cors';
 import { config } from './db/config';
-
 
 const app = express();
 
@@ -32,6 +32,7 @@ app.use('/api/v1/college', collegeRouter);
 app.use('/api/v1/lecture', lectureRouter);
 app.use('/api/v1/session', SessionRouter);
 app.use('/api/v1/attendance', AttendanceRouter);
+app.use('/api/v1/admin', adminRouter);
 
 app.use(globalErrorHandler);
 

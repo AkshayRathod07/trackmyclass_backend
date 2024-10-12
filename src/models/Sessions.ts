@@ -5,7 +5,7 @@ interface ISession extends Document {
   teacherId: mongoose.Schema.Types.ObjectId;
   lectureId: mongoose.Schema.Types.ObjectId;
   startTime: Date;
-  endTime: Date;
+
   isActive: boolean;
 }
 
@@ -22,12 +22,10 @@ const sessionSchema: Schema<ISession> = new mongoose.Schema(
     },
     startTime: {
       type: Date,
-      required: true,
+      required: false,
+      default: Date.now,
     },
-    endTime: {
-      type: Date,
-      required: true,
-    },
+
     isActive: {
       type: Boolean,
       required: true,
