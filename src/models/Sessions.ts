@@ -4,6 +4,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 interface ISession extends Document {
   teacherId: mongoose.Schema.Types.ObjectId;
   lectureId: mongoose.Schema.Types.ObjectId;
+  organizationId: mongoose.Schema.Types.ObjectId;
   startTime: Date;
 
   isActive: boolean;
@@ -19,6 +20,10 @@ const sessionSchema: Schema<ISession> = new mongoose.Schema(
     lectureId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Lecture', // Reference to the Lecture
+    },
+    organizationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Organization', // Reference to the Organization
     },
     startTime: {
       type: Date,

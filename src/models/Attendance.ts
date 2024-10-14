@@ -5,6 +5,7 @@ import { attendanceStatus, Astatus } from '../enum/attendance.enum';
 interface IAttendance extends Document {
   sessionId: mongoose.Schema.Types.ObjectId;
   studentId: mongoose.Schema.Types.ObjectId;
+  organizedId: mongoose.Schema.Types.ObjectId;
   attendedLectures: number; // Number of lectures the student attended for the session
   status: attendanceStatus;
   markedAt: Date;
@@ -20,6 +21,10 @@ const attendanceSchema: Schema<IAttendance> = new mongoose.Schema(
     studentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User', // Reference to the User (student)
+    },
+    organizedId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Organization', // Reference to the Organization
     },
     attendedLectures: {
       type: Number,

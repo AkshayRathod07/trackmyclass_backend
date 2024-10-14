@@ -1,7 +1,8 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { role, userRole } from '../enum/user.enum';
 // Interface for the User
-interface IUser extends Document {
+export interface IUser extends Document {
+  _id: mongoose.Schema.Types.ObjectId;
   firstName: string;
   lastName: string;
   email: string;

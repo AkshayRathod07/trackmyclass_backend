@@ -3,6 +3,61 @@ import { Request, Response } from 'express';
 import User from '../models/User';
 import Lecture from '../models/Lecture';
 import Sessions from '../models/Sessions';
+// import Redis from 'ioredis';
+// redis cloud setup
+// import Queue from 'bull';
+
+// import { createClient } from 'redis';
+
+// const redisClient = new Redis({
+//   host: 'redis-15398.c246.us-east-1-4.ec2.redns.redis-cloud.com',
+//   port: 15398,
+//   username: 'default',
+//   password: 'UuELsQUDAM5TJcHI9Oguefmv5yHORDMM',
+// });
+
+// Create a Bull queue using the Redis client
+// const sessionQueue = new Queue('session-deactivation', {
+//   createClient: () => redisClient, // Use the created Redis client for the queue
+// });
+
+// Listen for connection events
+// redisClient.on('connect', () => {
+//   console.log('Redis client connected successfully.');
+// });
+
+// redisClient.on('ready', () => {
+//   console.log('Redis client is ready to use.');
+// });
+
+// redisClient.on('error', (err) => {
+//   console.error('Redis client connection error:', err);
+// });
+
+// redisClient.on('end', () => {
+//   console.log('Redis client disconnected.');
+// });
+
+// Connect the Redis client
+// (async () => {
+//   try {
+//     await redisClient.connect();
+//     console.log('Connected to Redis successfully.');
+//   } catch (error) {
+//     console.error('Error connecting to Redis:', error);
+//   }
+// })();
+
+// Job processor to mark session inactive
+// sessionQueue.process(async (job) => {
+//   const sessionId = job.data.sessionId;
+//   try {
+//     await Sessions.findByIdAndUpdate(sessionId, { isActive: false });
+//     console.log(`Session ${sessionId} marked as inactive.`);
+//   } catch (error) {
+//     console.error(`Error marking session ${sessionId} inactive:`, error);
+//   }
+// });
 
 const createSessionSchema = z.object({
   teacherId: z.string(),
@@ -13,6 +68,8 @@ const createSessionSchema = z.object({
 
 const CreateSession = async (req: Request, res: Response) => {
   try {
+    console.log('started creating session api call');
+
     const result = createSessionSchema.safeParse(req.body);
     if (!result.success) {
       const errors = result.error.errors.map((err) => ({
@@ -53,6 +110,10 @@ const CreateSession = async (req: Request, res: Response) => {
         );
       }
     }, 240000); // 240000 milliseconds = 4 minutes
+
+    // disabled the bull queue for now
+    // Add a job to the Bull queue to deactivate the session in 4 minutes (240,000ms)
+    // sessionQueue.add({ sessionId: newSession._id }, { delay: 240000 });
 
     return res.status(201).json({
       Success: true,

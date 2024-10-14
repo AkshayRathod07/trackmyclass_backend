@@ -1,9 +1,13 @@
 import express from 'express';
-import { markAttendance } from '../controllers/attendance';
+import {
+  getAttendanceBySession,
+  markAttendance,
+} from '../controllers/attendance';
 import auth from '../middleware/auth';
 
 const AttendanceRouter = express.Router();
 
 AttendanceRouter.post('/mark-my-attendance', auth, markAttendance);
+AttendanceRouter.get('/by-session/:sessionId', getAttendanceBySession);
 
 export default AttendanceRouter;
