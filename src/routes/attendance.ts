@@ -8,6 +8,6 @@ import auth from '../middleware/auth';
 const AttendanceRouter = express.Router();
 
 AttendanceRouter.post('/mark-my-attendance', auth, markAttendance);
-AttendanceRouter.get('/by-session/:sessionId', getAttendanceBySession);
+AttendanceRouter.get('/by-session/:sessionId', auth, getAttendanceBySession);
 
 export default AttendanceRouter;

@@ -184,7 +184,10 @@ const getAttendanceByLecture = async (req: Request, res: Response) => {
       .map((record) => record.studentId);
 
     // Get all students in the class and filter out absent students
-    const allStudents = await User.find({ role: 'student' });
+    const allStudents = await User.find({
+      role: 'student',
+      organizationId: lecture.organizationId,
+    });
     const absentStudents = allStudents.filter(
       (student) => !presentStudentIds.includes(student._id)
     );

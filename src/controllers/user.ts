@@ -214,6 +214,11 @@ const inviteUser = async (req: Request, res: Response) => {
 
     // Send the email
     await sendEmail(data_to_send);
+
+    return res.status(201).json({
+      message: 'User invited',
+      code,
+    });
   } catch (error) {
     console.error('Invite user error:', error);
     return res.status(500).json({ message: 'Internal server error' });

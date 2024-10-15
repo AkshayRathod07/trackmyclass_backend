@@ -23,6 +23,13 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
       organizationId: string;
     };
 
+    // check if organizationId exists
+    if (!decoded.organizationId) {
+      return next(
+        createHttpError(400, 'Organization ID not found in the token')
+      );
+    }
+
     const _req = req as AuthRequest;
     _req.userId = decoded.sub;
     _req.role = decoded.role;
