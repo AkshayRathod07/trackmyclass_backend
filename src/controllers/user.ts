@@ -23,6 +23,10 @@ const signupSchema = z.object({
   phoneNumber: z.string().max(10),
   organizationName: z.string(),
   organizationId: z.string().optional(),
+  location: z.object({
+    latitude: z.number(),
+    longitude: z.number(),
+  }),
 });
 
 // Define the sign-in schema
@@ -34,8 +38,6 @@ const signInSchema = z.object({
 const inviteUserSchema = z.object({
   email: z.string().email(),
   role: z.enum(['STUDENT', 'TEACHER']),
-  organizationId: z.string(),
-  organizationName: z.string(),
   invitedBy: z.string().optional(),
   base_url_client: z.string(),
 });
@@ -67,6 +69,10 @@ const signup = async (req: Request, res: Response) => {
     if (role === 'ADMIN' || role === 'SUPERADMIN') {
       const adminOrganization = await Organization.create({
         name: organizationName,
+        location: {
+          latitude: result.data.location.latitude,
+          longitude: result.data.location.latitude,
+        },
         isActive: true,
       });
       organizationId = adminOrganization._id; // Store the organization ID
@@ -158,7 +164,7 @@ const inviteUser = async (req: Request, res: Response) => {
       return res.status(400).json({ errors });
     }
 
-    const { email, role, organizationId, organizationName } = result.data;
+    const { email, role } = result.data;
 
     // Check if user exists
     const existing = await User.findOne({ email });
@@ -185,20 +191,31 @@ const inviteUser = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'InvitedBy user not found' });
     }
 
+    // get organization details
+    const organization = await Organization.findById(
+      (req as AuthRequest).organizationId
+    );
+
+    // organization undefined check
+    if (!organization) {
+      return res.status(404).json({ message: 'Organization not found' });
+    }
+    console.log();
+
     // Save the code
     await InviteCode.create({
       code,
       email,
       role,
-      organizationId,
-      organizationName,
+      organizationId: (req as AuthRequest).organizationId,
+      organizationName: organization?.name,
       invitedBy,
     });
 
     const html_body: string = inviteTemplate({
       first_name: invitedByUser?.firstName,
       last_name: invitedByUser?.lastName,
-      organization_name: organizationName,
+      organization_name: organization.name,
       role,
       base_url_client: result.data.base_url_client,
       code,
@@ -208,7 +225,7 @@ const inviteUser = async (req: Request, res: Response) => {
 
     const data_to_send = {
       email,
-      subject: `Invitation to join ${organizationName}`,
+      subject: `Invitation to join ${organization?.name}`,
       html: html_body,
     };
 
@@ -249,4 +266,23 @@ const verifyCode = async (req: Request, res: Response) => {
   }
 };
 
-export { signup, signIn, inviteUser, verifyCode };
+// get my profile
+const getMyProfile = async (req: Request, res: Response) => {
+  console.log('req getMyProfile', req);
+
+  try {
+    const user = await User.findById((req as AuthRequest).userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.status(200).json({
+      user,
+    });
+  } catch (error) {
+    console.error('Get my profile error:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export { signup, signIn, inviteUser, verifyCode, getMyProfile };

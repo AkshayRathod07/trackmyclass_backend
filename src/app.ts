@@ -23,7 +23,7 @@ app.use(express.json());
 
 // Routes
 app.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'welcome to routes' });
+  res.send('Project is working');
 });
 
 app.use('/api/v1/users', userRouter);
