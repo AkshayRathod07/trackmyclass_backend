@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { z } from 'zod';
 import User from '../models/User';
 import Lecture from '../models/Lecture';
+import { AuthRequest } from '../middleware/auth';
 
 const createLectureSchema = z.object({
   teacherId: z.string(),
@@ -55,4 +56,19 @@ const createLecture = async (req: Request, res: Response) => {
   }
 };
 
-export { createLecture };
+// get lecture
+const getLecture = async (req: Request, res: Response) => {
+  try {
+    const organizationId = (req as AuthRequest).organizationId;
+    const lectures = await Lecture.find();
+    return res.status(200).json({ lectures });
+  } catch (error) {
+    console.error('Get lecture error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while fetching lectures',
+    });
+  }
+};
+
+export { createLecture, getLecture };

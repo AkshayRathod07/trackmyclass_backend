@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createLecture = void 0;
+exports.getLecture = exports.createLecture = void 0;
 const zod_1 = require("zod");
 const User_1 = __importDefault(require("../models/User"));
 const Lecture_1 = __importDefault(require("../models/Lecture"));
@@ -63,3 +63,21 @@ const createLecture = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.createLecture = createLecture;
+// get lecture
+const getLecture = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const organizationId = req.organizationId;
+        const lectures = yield Lecture_1.default.find({
+            organizationId,
+        });
+        return res.status(200).json({ lectures });
+    }
+    catch (error) {
+        console.error('Get lecture error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while fetching lectures',
+        });
+    }
+});
+exports.getLecture = getLecture;

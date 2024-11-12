@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateSession = void 0;
+exports.getAllSessions = exports.CreateSession = void 0;
 const zod_1 = require("zod");
 const User_1 = __importDefault(require("../models/User"));
 const Lecture_1 = __importDefault(require("../models/Lecture"));
@@ -122,3 +122,21 @@ const CreateSession = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.CreateSession = CreateSession;
+// get all sessions
+const getAllSessions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('started get all sessions api call');
+    try {
+        const sessions = yield Sessions_1.default.find({
+            isActive: true,
+        });
+        return res.status(200).json({ sessions });
+    }
+    catch (error) {
+        console.error('Get all sessions error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while fetching sessions',
+        });
+    }
+});
+exports.getAllSessions = getAllSessions;

@@ -8,4 +8,6 @@ const session_1 = require("../controllers/session");
 const auth_1 = __importDefault(require("../middleware/auth"));
 const SessionRouter = express_1.default.Router();
 SessionRouter.post('/create', auth_1.default, session_1.CreateSession);
+// getAllSessions route
+SessionRouter.get('/all', auth_1.default, session_1.getAllSessions);
 exports.default = SessionRouter;

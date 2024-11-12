@@ -130,4 +130,23 @@ const CreateSession = async (req: Request, res: Response) => {
   }
 };
 
-export { CreateSession };
+// get all sessions
+const getAllSessions = async (req: Request, res: Response) => {
+  console.log('started get all sessions api call');
+
+  try {
+    const sessions = await Sessions.find({
+      isActive: true,
+    });
+
+    return res.status(200).json({ sessions });
+  } catch (error) {
+    console.error('Get all sessions error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while fetching sessions',
+    });
+  }
+};
+
+export { CreateSession, getAllSessions };
