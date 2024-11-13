@@ -172,6 +172,13 @@ const inviteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         if (existing) {
             return res.status(400).json({ message: 'User already exists' });
         }
+        // Check if an invite already exists for this email
+        const existingInvite = yield Invitecode_1.default.findOne({ email });
+        if (existingInvite) {
+            return res
+                .status(400)
+                .json({ message: 'Invite already sent to this email' });
+        }
         // Create the code
         const code = (0, textCodeGenerator_1.default)(8);
         // get invitedBy from jwt token in headers

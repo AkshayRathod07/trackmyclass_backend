@@ -172,6 +172,14 @@ const inviteUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    // Check if an invite already exists for this email
+    const existingInvite = await InviteCode.findOne({ email });
+    if (existingInvite) {
+      return res
+        .status(400)
+        .json({ message: 'Invite already sent to this email' });
+    }
+
     // Create the code
     const code = generateTextCode(8);
 

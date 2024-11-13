@@ -67,9 +67,7 @@ exports.createLecture = createLecture;
 const getLecture = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const organizationId = req.organizationId;
-        const lectures = yield Lecture_1.default.find({
-            organizationId,
-        });
+        const lectures = yield Lecture_1.default.find();
         return res.status(200).json({ lectures });
     }
     catch (error) {
