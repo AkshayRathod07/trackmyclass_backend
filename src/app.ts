@@ -26,7 +26,7 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Project is working');
 });
 
-app.use('/api/v1/users', userRouter);
+app.use('/api/v1/user', userRouter);
 app.use('/api/v1/college', collegeRouter);
 
 app.use('/api/v1/lecture', lectureRouter);
