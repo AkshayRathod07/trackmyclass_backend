@@ -125,6 +125,11 @@ function default_1({ first_name, last_name, organization_name, role, base_url_cl
                          <tr>
                           <td align="center" style="padding:0;Margin:0;padding-top:10px;padding-bottom:40px"><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D"><br></h3><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:27px;color:#5D541D;font-size:18px"><br></p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:27px;color:#5D541D;font-size:18px">${first_name} ${last_name} is inviting you to join ${organization_name} as ${role}.<br><br>Click on the link below to start onboarding&nbsp;the platform.<br><br></p></td>
                          </tr>
+                        //  write the code here with styled center aligned box
+                        <tr align="center >
+                        <td> Your verification code </td> <br/>
+                        <td> ${code} </td>
+                        </tr>
                          <tr>
                           <td align="center" style="padding:0;Margin:0"><!--[if mso]><a href="${base_url_client}/invitation?code=${code}" target="_blank" hidden>
         <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" esdevVmlButton href="${base_url_client}/invitation?code=${code}" 

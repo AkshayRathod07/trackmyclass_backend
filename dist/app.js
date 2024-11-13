@@ -22,7 +22,7 @@ app.use(express_1.default.json());
 app.get('/', (req, res) => {
     res.send('Project is working');
 });
-app.use('/api/v1/users', user_1.default);
+app.use('/api/v1/user', user_1.default);
 app.use('/api/v1/college', college_1.default);
 app.use('/api/v1/lecture', lecture_1.default);
 app.use('/api/v1/session', session_1.default);
