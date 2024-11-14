@@ -71,4 +71,22 @@ const getLecture = async (req: Request, res: Response) => {
   }
 };
 
-export { createLecture, getLecture };
+// delete lecture
+const deleteLecture = async (req: Request, res: Response) => {
+  try {
+    const { lectureId } = req.params;
+    const lecture = await Lecture.findByIdAndDelete(lectureId);
+    if (!lecture) {
+      return res.status(404).json({ message: 'Lecture not found' });
+    }
+    return res.status(200).json({ message: 'Lecture deleted successfully' });
+  } catch (error) {
+    console.error('Delete lecture error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while deleting lecture',
+    });
+  }
+};
+
+export { createLecture, getLecture, deleteLecture };

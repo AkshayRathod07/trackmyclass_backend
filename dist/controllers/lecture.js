@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLecture = exports.createLecture = void 0;
+exports.deleteLecture = exports.getLecture = exports.createLecture = void 0;
 const zod_1 = require("zod");
 const User_1 = __importDefault(require("../models/User"));
 const Lecture_1 = __importDefault(require("../models/Lecture"));
@@ -79,3 +79,22 @@ const getLecture = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.getLecture = getLecture;
+// delete lecture
+const deleteLecture = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { lectureId } = req.params;
+        const lecture = yield Lecture_1.default.findByIdAndDelete(lectureId);
+        if (!lecture) {
+            return res.status(404).json({ message: 'Lecture not found' });
+        }
+        return res.status(200).json({ message: 'Lecture deleted successfully' });
+    }
+    catch (error) {
+        console.error('Delete lecture error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while deleting lecture',
+        });
+    }
+});
+exports.deleteLecture = deleteLecture;

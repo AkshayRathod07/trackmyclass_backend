@@ -149,4 +149,25 @@ const getAllSessions = async (req: Request, res: Response) => {
   }
 };
 
-export { CreateSession, getAllSessions };
+// delete session
+
+const deleteSession = async (req: Request, res: Response) => {
+  try {
+    const { sessionId } = req.params;
+    const session = await Sessions.findById(sessionId);
+
+    if (!session) {
+      return res.status(404).json({ message: 'Session not found' });
+    }
+
+    await Sessions.findByIdAndDelete(sessionId);
+    return res.status(200).json({ message: 'Session deleted successfully' });
+  } catch (error) {
+    console.error('Delete session error:', error);
+    return res.status(500).json({
+      message: 'An error occurred while deleting session',
+    });
+  }
+};
+
+export { CreateSession, getAllSessions, deleteSession };

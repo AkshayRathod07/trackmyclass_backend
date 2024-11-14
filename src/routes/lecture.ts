@@ -1,5 +1,9 @@
 import express from 'express';
-import { createLecture, getLecture } from '../controllers/lecture';
+import {
+  createLecture,
+  getLecture,
+  deleteLecture,
+} from '../controllers/lecture';
 import auth from '../middleware/auth';
 import { getAttendanceByLecture } from '../controllers/attendance';
 
@@ -12,5 +16,6 @@ lectureRouter.get(
   auth,
   getAttendanceByLecture
 );
+lectureRouter.delete('/delete/:lectureId', auth, deleteLecture);
 
 export default lectureRouter;

@@ -10,4 +10,6 @@ const SessionRouter = express_1.default.Router();
 SessionRouter.post('/create', auth_1.default, session_1.CreateSession);
 // getAllSessions route
 SessionRouter.get('/all', auth_1.default, session_1.getAllSessions);
+// deleteSession route
+SessionRouter.delete('/delete/:sessionId', auth_1.default, session_1.deleteSession);
 exports.default = SessionRouter;

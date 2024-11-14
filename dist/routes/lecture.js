@@ -11,4 +11,5 @@ const lectureRouter = express_1.default.Router();
 lectureRouter.post('/create', auth_1.default, lecture_1.createLecture);
 lectureRouter.get('/all', auth_1.default, lecture_1.getLecture);
 lectureRouter.get('/get-attendance-by-lecture/:lectureId', auth_1.default, attendance_1.getAttendanceByLecture);
+lectureRouter.delete('/delete/:lectureId', auth_1.default, lecture_1.deleteLecture);
 exports.default = lectureRouter;

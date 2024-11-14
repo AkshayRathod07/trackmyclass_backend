@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllSessions = exports.CreateSession = void 0;
+exports.deleteSession = exports.getAllSessions = exports.CreateSession = void 0;
 const zod_1 = require("zod");
 const User_1 = __importDefault(require("../models/User"));
 const Lecture_1 = __importDefault(require("../models/Lecture"));
@@ -140,3 +140,22 @@ const getAllSessions = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.getAllSessions = getAllSessions;
+// delete session
+const deleteSession = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { sessionId } = req.params;
+        const session = yield Sessions_1.default.findById(sessionId);
+        if (!session) {
+            return res.status(404).json({ message: 'Session not found' });
+        }
+        yield Sessions_1.default.findByIdAndDelete(sessionId);
+        return res.status(200).json({ message: 'Session deleted successfully' });
+    }
+    catch (error) {
+        console.error('Delete session error:', error);
+        return res.status(500).json({
+            message: 'An error occurred while deleting session',
+        });
+    }
+});
+exports.deleteSession = deleteSession;
