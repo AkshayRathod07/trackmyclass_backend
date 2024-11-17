@@ -45,7 +45,7 @@ const createLecture = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             return res.status(400).json({ message: 'Teacher not found' });
         }
         // create a new lecture
-        const newLecture = yield Lecture_1.default.create(Object.assign(Object.assign({}, result.data), { organizationId: req.organizationId }));
+        const newLecture = yield Lecture_1.default.create(Object.assign(Object.assign({}, result.data), { organizationId: req.organizationId, teacherId }));
         return res.status(201).json({
             Success: true,
             message: 'Lecture created successfully',
