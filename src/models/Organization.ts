@@ -4,6 +4,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 interface IOorganization extends Document {
   name: string;
   isActive: boolean;
+  address: string;
   location: {
     latitude: number;
     longitude: number;
@@ -22,6 +23,11 @@ const organizationSchema: Schema<IOorganization> = new mongoose.Schema(
       type: Boolean,
       required: true,
       default: true,
+    },
+    address: {
+      type: String,
+      required: true,
+      trim: true,
     },
     location: {
       latitude: {

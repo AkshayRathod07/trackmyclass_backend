@@ -16,6 +16,11 @@ const organizationSchema = new mongoose_1.default.Schema({
         required: true,
         default: true,
     },
+    address: {
+        type: String,
+        required: true,
+        trim: true,
+    },
     location: {
         latitude: {
             type: Number,

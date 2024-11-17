@@ -5,7 +5,6 @@ import Lecture from '../models/Lecture';
 import { AuthRequest } from '../middleware/auth';
 
 const createLectureSchema = z.object({
-  teacherId: z.string(),
   startTime: z.string().datetime({
     message: 'Invalid datetime string! Must be UTC.',
   }),
@@ -28,10 +27,12 @@ const createLecture = async (req: Request, res: Response) => {
       return res.status(400).json({ errors });
     }
 
+    const teacherId = (req as AuthRequest).userId;
+
     console.log('result:', result);
 
     // Check if the teacher exists
-    const teacher = await User.findById(result?.data?.teacherId);
+    const teacher = await User.findById(teacherId);
     if (!teacher) {
       return res.status(400).json({ message: 'Teacher not found' });
     }
@@ -39,13 +40,15 @@ const createLecture = async (req: Request, res: Response) => {
     // create a new lecture
     const newLecture = await Lecture.create({
       ...result.data,
+      organizationId: (req as AuthRequest).organizationId,
+      teacherId,
     });
 
     return res.status(201).json({
       Success: true,
       message: 'Lecture created successfully',
       lectureId: newLecture._id,
-      teacherId: newLecture.teacherId,
+      teacherId: teacherId,
     });
   } catch (error) {
     console.error('Create lecture error:', error);
@@ -60,7 +63,11 @@ const createLecture = async (req: Request, res: Response) => {
 const getLecture = async (req: Request, res: Response) => {
   try {
     const organizationId = (req as AuthRequest).organizationId;
-    const lectures = await Lecture.find();
+    console.log('organizationId:', organizationId);
+
+    const lectures = await Lecture.find({ organizationId });
+    console.log('lectures:', lectures);
+
     return res.status(200).json({ lectures });
   } catch (error) {
     console.error('Get lecture error:', error);

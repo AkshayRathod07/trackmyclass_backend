@@ -23,6 +23,7 @@ const signupSchema = z.object({
   phoneNumber: z.string().max(10),
   organizationName: z.string(),
   organizationId: z.string().optional(),
+  address: z.string(),
   location: z.object({
     latitude: z.number(),
     longitude: z.number(),
@@ -69,6 +70,7 @@ const signup = async (req: Request, res: Response) => {
     if (role === 'ADMIN' || role === 'SUPERADMIN') {
       const adminOrganization = await Organization.create({
         name: organizationName,
+        address: result.data?.address,
         location: {
           latitude: result.data.location.latitude,
           longitude: result.data.location.latitude,

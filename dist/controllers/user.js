@@ -46,6 +46,7 @@ const signupSchema = zod_1.z.object({
     phoneNumber: zod_1.z.string().max(10),
     organizationName: zod_1.z.string(),
     organizationId: zod_1.z.string().optional(),
+    address: zod_1.z.string(),
     location: zod_1.z.object({
         latitude: zod_1.z.number(),
         longitude: zod_1.z.number(),
@@ -64,6 +65,7 @@ const inviteUserSchema = zod_1.z.object({
 });
 // Signup handler
 const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const result = signupSchema.safeParse(req.body);
         if (!result.success) {
@@ -73,7 +75,7 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }));
             return res.status(400).json({ errors });
         }
-        const _a = result.data, { password, role, organizationName } = _a, rest = __rest(_a, ["password", "role", "organizationName"]);
+        const _b = result.data, { password, role, organizationName } = _b, rest = __rest(_b, ["password", "role", "organizationName"]);
         const hashedPassword = yield bcrypt_1.default.hash(password, 10);
         // Check if user exists
         const existing = yield User_1.default.findOne({ email: rest.email });
@@ -85,6 +87,7 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (role === 'ADMIN' || role === 'SUPERADMIN') {
             const adminOrganization = yield Organization_1.default.create({
                 name: organizationName,
+                address: (_a = result.data) === null || _a === void 0 ? void 0 : _a.address,
                 location: {
                     latitude: result.data.location.latitude,
                     longitude: result.data.location.latitude,

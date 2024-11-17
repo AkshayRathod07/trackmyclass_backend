@@ -17,7 +17,6 @@ const zod_1 = require("zod");
 const User_1 = __importDefault(require("../models/User"));
 const Lecture_1 = __importDefault(require("../models/Lecture"));
 const createLectureSchema = zod_1.z.object({
-    teacherId: zod_1.z.string(),
     startTime: zod_1.z.string().datetime({
         message: 'Invalid datetime string! Must be UTC.',
     }),
@@ -29,7 +28,6 @@ const createLectureSchema = zod_1.z.object({
     duration: zod_1.z.number().optional(),
 });
 const createLecture = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     try {
         const result = createLectureSchema.safeParse(req.body);
         if (!result.success) {
@@ -39,19 +37,20 @@ const createLecture = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             }));
             return res.status(400).json({ errors });
         }
+        const teacherId = req.userId;
         console.log('result:', result);
         // Check if the teacher exists
-        const teacher = yield User_1.default.findById((_a = result === null || result === void 0 ? void 0 : result.data) === null || _a === void 0 ? void 0 : _a.teacherId);
+        const teacher = yield User_1.default.findById(teacherId);
         if (!teacher) {
             return res.status(400).json({ message: 'Teacher not found' });
         }
         // create a new lecture
-        const newLecture = yield Lecture_1.default.create(Object.assign({}, result.data));
+        const newLecture = yield Lecture_1.default.create(Object.assign(Object.assign({}, result.data), { organizationId: req.organizationId }));
         return res.status(201).json({
             Success: true,
             message: 'Lecture created successfully',
             lectureId: newLecture._id,
-            teacherId: newLecture.teacherId,
+            teacherId: teacherId,
         });
     }
     catch (error) {
@@ -67,7 +66,9 @@ exports.createLecture = createLecture;
 const getLecture = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const organizationId = req.organizationId;
-        const lectures = yield Lecture_1.default.find();
+        console.log('organizationId:', organizationId);
+        const lectures = yield Lecture_1.default.find({ organizationId });
+        console.log('lectures:', lectures);
         return res.status(200).json({ lectures });
     }
     catch (error) {
