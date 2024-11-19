@@ -18,13 +18,16 @@ const User_1 = __importDefault(require("../models/User"));
 const Sessions_1 = __importDefault(require("../models/Sessions"));
 const Attendance_1 = __importDefault(require("../models/Attendance"));
 const Lecture_1 = __importDefault(require("../models/Lecture"));
+const Organization_1 = __importDefault(require("../models/Organization"));
 const createAttendanceSchema = zod_1.z.object({
     sessionId: zod_1.z.string(),
     attendedLectures: zod_1.z.number(),
     status: zod_1.z.enum(['Present', 'Absent']),
+    latitude: zod_1.z.number(),
+    longitude: zod_1.z.number(),
 });
 const markAttendance = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+    var _a, _b, _c, _d;
     try {
         const result = createAttendanceSchema.safeParse(req.body);
         if (!result.success) {
@@ -49,8 +52,22 @@ const markAttendance = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         if (!session || !session.isActive) {
             return res.status(400).json({ message: 'Session not found or inactive' });
         }
+        const organizationId = req.organizationId;
+        // match lattiude and longitude from getOrganizationLocation comapre with payload latitude and longitude
+        const getOrganizationLocation = yield Organization_1.default.findById(organizationId);
+        if (!getOrganizationLocation) {
+            return res.status(400).json({
+                message: 'Organization not found',
+            });
+        }
+        console.log(getOrganizationLocation);
+        if (((_c = getOrganizationLocation === null || getOrganizationLocation === void 0 ? void 0 : getOrganizationLocation.location) === null || _c === void 0 ? void 0 : _c.latitude) !== result.data.latitude ||
+            ((_d = getOrganizationLocation === null || getOrganizationLocation === void 0 ? void 0 : getOrganizationLocation.location) === null || _d === void 0 ? void 0 : _d.longitude) !== result.data.longitude) {
+            return res.status(400).json({
+                message: 'You are not in the organization location',
+            });
+        }
         const studentId = req.userId;
-        console.log('studentIds', studentId);
         // Check if the student exists
         const student = yield User_1.default.findById(studentId);
         if (!student) {

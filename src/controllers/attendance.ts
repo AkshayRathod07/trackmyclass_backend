@@ -5,12 +5,15 @@ import Sessions from '../models/Sessions';
 import Attendance from '../models/Attendance';
 import { AuthRequest } from '../middleware/auth';
 import Lecture from '../models/Lecture';
+import Organization from '../models/Organization';
 
 const createAttendanceSchema = z.object({
   sessionId: z.string(),
 
   attendedLectures: z.number(),
   status: z.enum(['Present', 'Absent']),
+  latitude: z.number(),
+  longitude: z.number(),
 });
 
 const markAttendance = async (
@@ -36,6 +39,7 @@ const markAttendance = async (
       sessionId: result?.data?.sessionId,
       studentId: (req as AuthRequest).userId,
     });
+
     if (attendance) {
       return res.status(400).json({
         message: 'Attendance already marked for this session',
@@ -46,9 +50,28 @@ const markAttendance = async (
       return res.status(400).json({ message: 'Session not found or inactive' });
     }
 
-    const studentId = (req as AuthRequest).userId;
+    const organizationId = (req as AuthRequest).organizationId;
+    // match lattiude and longitude from getOrganizationLocation comapre with payload latitude and longitude
 
-    console.log('studentIds', studentId);
+    const getOrganizationLocation = await Organization.findById(organizationId);
+
+    if (!getOrganizationLocation) {
+      return res.status(400).json({
+        message: 'Organization not found',
+      });
+    }
+    console.log(getOrganizationLocation);
+
+    if (
+      getOrganizationLocation?.location?.latitude !== result.data.latitude ||
+      getOrganizationLocation?.location?.longitude !== result.data.longitude
+    ) {
+      return res.status(400).json({
+        message: 'You are not in the organization location',
+      });
+    }
+
+    const studentId = (req as AuthRequest).userId;
 
     // Check if the student exists
     const student = await User.findById(studentId);
