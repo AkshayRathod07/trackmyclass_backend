@@ -269,6 +269,7 @@ const verifyCode = async (req: Request, res: Response) => {
       email: existing.email,
       role: existing.role,
       organizationName: existing.organizationName,
+      organizationId: existing.organizationId,
     });
   } catch (error) {
     console.error('Verify code error:', error);
