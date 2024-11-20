@@ -13,6 +13,7 @@ const attendance_1 = __importDefault(require("./routes/attendance"));
 const admin_1 = __importDefault(require("./routes/admin"));
 const cors_1 = __importDefault(require("cors"));
 const config_1 = require("./db/config");
+const analytics_1 = __importDefault(require("./routes/analytics"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     origin: config_1.config.frontEndDomain,
@@ -28,6 +29,7 @@ app.use('/api/v1/lecture', lecture_1.default);
 app.use('/api/v1/session', session_1.default);
 app.use('/api/v1/attendance', attendance_1.default);
 app.use('/api/v1/admin', admin_1.default);
+app.use('/api/v1/analytics', analytics_1.default);
 app.use(globalErrorHandler_1.default);
 exports.default = app;
 // Writing this for testing purpose of commit

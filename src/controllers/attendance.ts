@@ -204,7 +204,7 @@ const getAttendanceByLecture = async (req: Request, res: Response) => {
 
     // Get all student IDs who attended the sessions
     const presentStudentIds = attendanceRecords
-      .filter((record) => record.status === 'present')
+      .filter((record) => record.status === 'Present')
       .map((record) => record.studentId);
 
     // Get all students in the class and filter out absent students

@@ -178,7 +178,7 @@ const getAttendanceByLecture = (req, res) => __awaiter(void 0, void 0, void 0, f
         });
         // Get all student IDs who attended the sessions
         const presentStudentIds = attendanceRecords
-            .filter((record) => record.status === 'present')
+            .filter((record) => record.status === 'Present')
             .map((record) => record.studentId);
         // Get all students in the class and filter out absent students
         const allStudents = yield User_1.default.find({
