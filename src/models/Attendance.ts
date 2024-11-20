@@ -18,6 +18,7 @@ const attendanceSchema: Schema<IAttendance> = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Session', // Reference to the Session
     },
+
     studentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User', // Reference to the User (student)
@@ -34,7 +35,7 @@ const attendanceSchema: Schema<IAttendance> = new mongoose.Schema(
     status: {
       type: String,
       enum: attendanceStatus,
-      default: attendanceStatus.Absent,
+      default: attendanceStatus.absent,
     },
     markedAt: {
       type: Date,

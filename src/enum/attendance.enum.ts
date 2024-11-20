@@ -1,6 +1,6 @@
 export enum attendanceStatus {
-  Present = 'Present',
-  Absent = 'Absent',
+  present = 'present',
+  absent = 'absent',
 }
 
-export const Astatus = ['Present', 'Absent'];
+export const Astatus = ['present', 'Absent'];

@@ -44,13 +44,17 @@ const signupSchema = zod_1.z.object({
     role: zod_1.z.enum(['STUDENT', 'ADMIN', 'SUPERADMIN']),
     profilePic: zod_1.z.string(),
     phoneNumber: zod_1.z.string().max(10),
-    organizationName: zod_1.z.string(),
+    organizationName: zod_1.z.string().refine((val) => val.length > 0, {
+        message: 'Organization name is required',
+    }),
     organizationId: zod_1.z.string().optional(),
-    address: zod_1.z.string(),
-    location: zod_1.z.object({
+    address: zod_1.z.string().optional(),
+    location: zod_1.z
+        .object({
         latitude: zod_1.z.number(),
         longitude: zod_1.z.number(),
-    }),
+    })
+        .optional(),
 });
 // Define the sign-in schema
 const signInSchema = zod_1.z.object({
@@ -65,7 +69,7 @@ const inviteUserSchema = zod_1.z.object({
 });
 // Signup handler
 const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b, _c, _d, _e;
     try {
         const result = signupSchema.safeParse(req.body);
         if (!result.success) {
@@ -75,7 +79,7 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }));
             return res.status(400).json({ errors });
         }
-        const _b = result.data, { password, role, organizationName } = _b, rest = __rest(_b, ["password", "role", "organizationName"]);
+        const _f = result.data, { password, role, organizationName } = _f, rest = __rest(_f, ["password", "role", "organizationName"]);
         const hashedPassword = yield bcrypt_1.default.hash(password, 10);
         // Check if user exists
         const existing = yield User_1.default.findOne({ email: rest.email });
@@ -85,12 +89,17 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         let organizationId;
         // If role is admin or superadmin, create organization
         if (role === 'ADMIN' || role === 'SUPERADMIN') {
+            if (!((_a = result.data) === null || _a === void 0 ? void 0 : _a.address) || !((_b = result.data) === null || _b === void 0 ? void 0 : _b.location)) {
+                return res
+                    .status(400)
+                    .json({ message: 'Address is required for organizations' });
+            }
             const adminOrganization = yield Organization_1.default.create({
                 name: organizationName,
-                address: (_a = result.data) === null || _a === void 0 ? void 0 : _a.address,
+                address: (_c = result.data) === null || _c === void 0 ? void 0 : _c.address,
                 location: {
-                    latitude: result.data.location.latitude,
-                    longitude: result.data.location.latitude,
+                    latitude: (_d = result === null || result === void 0 ? void 0 : result.data) === null || _d === void 0 ? void 0 : _d.location.latitude,
+                    longitude: (_e = result === null || result === void 0 ? void 0 : result.data) === null || _e === void 0 ? void 0 : _e.location.latitude,
                 },
                 isActive: true,
             });
@@ -255,6 +264,7 @@ const verifyCode = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             email: existing.email,
             role: existing.role,
             organizationName: existing.organizationName,
+            organizationId: existing.organizationId,
         });
     }
     catch (error) {

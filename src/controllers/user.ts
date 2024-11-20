@@ -21,13 +21,17 @@ const signupSchema = z.object({
   role: z.enum(['STUDENT', 'ADMIN', 'SUPERADMIN']),
   profilePic: z.string(),
   phoneNumber: z.string().max(10),
-  organizationName: z.string(),
-  organizationId: z.string().optional(),
-  address: z.string(),
-  location: z.object({
-    latitude: z.number(),
-    longitude: z.number(),
+  organizationName: z.string().refine((val) => val.length > 0, {
+    message: 'Organization name is required',
   }),
+  organizationId: z.string().optional(),
+  address: z.string().optional(),
+  location: z
+    .object({
+      latitude: z.number(),
+      longitude: z.number(),
+    })
+    .optional(),
 });
 
 // Define the sign-in schema
@@ -68,12 +72,18 @@ const signup = async (req: Request, res: Response) => {
 
     // If role is admin or superadmin, create organization
     if (role === 'ADMIN' || role === 'SUPERADMIN') {
+      if (!result.data?.address || !result.data?.location) {
+        return res
+          .status(400)
+          .json({ message: 'Address is required for organizations' });
+      }
+
       const adminOrganization = await Organization.create({
         name: organizationName,
         address: result.data?.address,
         location: {
-          latitude: result.data.location.latitude,
-          longitude: result.data.location.latitude,
+          latitude: result?.data?.location.latitude,
+          longitude: result?.data?.location.latitude,
         },
         isActive: true,
       });

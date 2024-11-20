@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Astatus = exports.attendanceStatus = void 0;
 var attendanceStatus;
 (function (attendanceStatus) {
-    attendanceStatus["Present"] = "Present";
-    attendanceStatus["Absent"] = "Absent";
+    attendanceStatus["present"] = "present";
+    attendanceStatus["absent"] = "absent";
 })(attendanceStatus || (exports.attendanceStatus = attendanceStatus = {}));
-exports.Astatus = ['Present', 'Absent'];
+exports.Astatus = ['present', 'Absent'];

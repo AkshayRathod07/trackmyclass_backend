@@ -27,7 +27,7 @@ const attendanceSchema = new mongoose_1.default.Schema({
     status: {
         type: String,
         enum: attendance_enum_1.attendanceStatus,
-        default: attendance_enum_1.attendanceStatus.Absent,
+        default: attendance_enum_1.attendanceStatus.absent,
     },
     markedAt: {
         type: Date,

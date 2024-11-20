@@ -74,7 +74,7 @@ const markAttendance = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             return res.status(400).json({ message: 'Student not found' });
         }
         // Mark attendance create  in Attendance
-        const newAttendance = yield Attendance_1.default.create(Object.assign(Object.assign({}, result.data), { studentId }));
+        const newAttendance = yield Attendance_1.default.create(Object.assign(Object.assign({}, result.data), { studentId, lectureId: session.lectureId }));
         return res.status(201).json({
             Success: true,
             message: 'Attendance marked successfully',
@@ -178,7 +178,7 @@ const getAttendanceByLecture = (req, res) => __awaiter(void 0, void 0, void 0, f
         });
         // Get all student IDs who attended the sessions
         const presentStudentIds = attendanceRecords
-            .filter((record) => record.status === 'Present')
+            .filter((record) => record.status === 'present')
             .map((record) => record.studentId);
         // Get all students in the class and filter out absent students
         const allStudents = yield User_1.default.find({

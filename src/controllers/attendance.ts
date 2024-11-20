@@ -83,6 +83,7 @@ const markAttendance = async (
     const newAttendance = await Attendance.create({
       ...result.data,
       studentId,
+      lectureId: session.lectureId,
     });
 
     return res.status(201).json({
@@ -203,7 +204,7 @@ const getAttendanceByLecture = async (req: Request, res: Response) => {
 
     // Get all student IDs who attended the sessions
     const presentStudentIds = attendanceRecords
-      .filter((record) => record.status === 'Present')
+      .filter((record) => record.status === 'present')
       .map((record) => record.studentId);
 
     // Get all students in the class and filter out absent students
