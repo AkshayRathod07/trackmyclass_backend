@@ -18,7 +18,7 @@ const signupSchema = z.object({
   lastName: z.string(),
   email: z.string().email(),
   password: z.string().min(6),
-  role: z.enum(['STUDENT', 'ADMIN', 'SUPERADMIN']),
+  role: z.enum(['STUDENT', 'ADMIN', 'TEACHER']),
   profilePic: z.string(),
   phoneNumber: z.string().max(10),
   organizationName: z.string().refine((val) => val.length > 0, {
@@ -71,7 +71,7 @@ const signup = async (req: Request, res: Response) => {
     let organizationId;
 
     // If role is admin or superadmin, create organization
-    if (role === 'ADMIN' || role === 'SUPERADMIN') {
+    if (role === 'ADMIN') {
       if (!result.data?.address || !result.data?.location) {
         return res
           .status(400)

@@ -5,6 +5,6 @@ var userRole;
 (function (userRole) {
     userRole["STUDENT"] = "STUDENT";
     userRole["ADMIN"] = "ADMIN";
-    userRole["SUPERADMIN"] = "SUPERADMIN";
+    userRole["TEACHER"] = "TEACHER";
 })(userRole || (exports.userRole = userRole = {}));
-exports.role = ['STUDENT', 'ADMIN', 'SUPERADMIN'];
+exports.role = ['STUDENT', 'ADMIN', 'TEACHER'];

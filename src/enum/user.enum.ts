@@ -1,7 +1,7 @@
 export enum userRole {
   STUDENT = 'STUDENT',
   ADMIN = 'ADMIN',
-  SUPERADMIN = 'SUPERADMIN',
+  TEACHER = 'TEACHER',
 }
 
-export const role = ['STUDENT', 'ADMIN', 'SUPERADMIN'];
+export const role = ['STUDENT', 'ADMIN', 'TEACHER'];

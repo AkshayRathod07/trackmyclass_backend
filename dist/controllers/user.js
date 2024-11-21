@@ -41,7 +41,7 @@ const signupSchema = zod_1.z.object({
     lastName: zod_1.z.string(),
     email: zod_1.z.string().email(),
     password: zod_1.z.string().min(6),
-    role: zod_1.z.enum(['STUDENT', 'ADMIN', 'SUPERADMIN']),
+    role: zod_1.z.enum(['STUDENT', 'ADMIN', 'TEACHER']),
     profilePic: zod_1.z.string(),
     phoneNumber: zod_1.z.string().max(10),
     organizationName: zod_1.z.string().refine((val) => val.length > 0, {
@@ -88,7 +88,7 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         let organizationId;
         // If role is admin or superadmin, create organization
-        if (role === 'ADMIN' || role === 'SUPERADMIN') {
+        if (role === 'ADMIN') {
             if (!((_a = result.data) === null || _a === void 0 ? void 0 : _a.address) || !((_b = result.data) === null || _b === void 0 ? void 0 : _b.location)) {
                 return res
                     .status(400)
