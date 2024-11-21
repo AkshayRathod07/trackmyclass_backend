@@ -19,7 +19,7 @@ const signupSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   role: z.enum(['STUDENT', 'ADMIN', 'TEACHER']),
-  profilePic: z.string(),
+  profilePic: z.string().optional(),
   phoneNumber: z.string().max(10),
   organizationName: z.string().refine((val) => val.length > 0, {
     message: 'Organization name is required',
