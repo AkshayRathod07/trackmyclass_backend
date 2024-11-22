@@ -293,7 +293,7 @@ const getMyProfile = async (req: Request, res: Response) => {
 
   try {
     const user = await User.findById((req as AuthRequest).userId)
-      .populate('organizationId')
+      .populate('organizationId', 'name')
       .exec();
 
     if (!user) {
