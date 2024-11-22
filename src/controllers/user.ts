@@ -292,7 +292,10 @@ const getMyProfile = async (req: Request, res: Response) => {
   console.log('req getMyProfile', req);
 
   try {
-    const user = await User.findById((req as AuthRequest).userId);
+    const user = await User.findById((req as AuthRequest).userId)
+      .populate('organizationId')
+      .exec();
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }

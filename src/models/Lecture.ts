@@ -4,6 +4,7 @@ export interface ILecture extends Document {
   subject: string;
   teacherId: mongoose.Schema.Types.ObjectId;
   organizationId: mongoose.Schema.Types.ObjectId;
+  sessionId: mongoose.Schema.Types.ObjectId;
   startTime: Date;
   endTime: Date;
   dayOfWeek: string;
@@ -23,6 +24,10 @@ const lectureSchema: Schema<ILecture> = new mongoose.Schema(
     organizationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Organization',
+    },
+    sessionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Session',
     },
     startTime: {
       type: Date,

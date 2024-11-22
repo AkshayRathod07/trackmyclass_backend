@@ -97,6 +97,10 @@ const CreateSession = async (req: Request, res: Response) => {
       isActive: true, // Set active to true when session is created
     });
 
+    await Lecture.findByIdAndUpdate(result?.data?.lectureId, {
+      $push: { sessionId: newSession._id },
+    });
+
     // Schedule deactivation after 4 minutes (240,000 milliseconds)
     setTimeout(async () => {
       console.log(`Trying to mark session ${newSession._id} inactive...`);
