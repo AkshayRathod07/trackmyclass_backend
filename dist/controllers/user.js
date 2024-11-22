@@ -275,14 +275,29 @@ const verifyCode = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.verifyCode = verifyCode;
 // get my profile
 const getMyProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     console.log('req getMyProfile', req);
     try {
-        const user = yield User_1.default.findById(req.userId);
+        const user = yield User_1.default.findById(req.userId)
+            .populate('organizationId', 'name')
+            .exec();
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+        // @ts-expect-error: TypeScript does not recognize the populated field
+        const organizationName = ((_a = user.organizationId) === null || _a === void 0 ? void 0 : _a.name) || '';
+        const userData = {
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+            organizationId: user.organizationId,
+            profilePic: user.profilePic,
+            phoneNumber: user.phoneNumber,
+            organizationName: organizationName || '',
+        };
         return res.status(200).json({
-            user,
+            user: userData,
         });
     }
     catch (error) {

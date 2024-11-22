@@ -17,6 +17,10 @@ const lectureSchema = new mongoose_1.default.Schema({
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'Organization',
     },
+    sessionId: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: 'Session',
+    },
     startTime: {
         type: Date,
         required: true,

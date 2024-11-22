@@ -69,7 +69,7 @@ const createSessionSchema = zod_1.z.object({
     isActive: zod_1.z.boolean(),
 });
 const CreateSession = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+    var _a, _b, _c;
     try {
         console.log('started creating session api call');
         const result = createSessionSchema.safeParse(req.body);
@@ -92,6 +92,9 @@ const CreateSession = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         }
         // Create a new session
         const newSession = yield Sessions_1.default.create(Object.assign(Object.assign({}, result.data), { isActive: true }));
+        yield Lecture_1.default.findByIdAndUpdate((_c = result === null || result === void 0 ? void 0 : result.data) === null || _c === void 0 ? void 0 : _c.lectureId, {
+            $push: { sessionId: newSession._id },
+        });
         // Schedule deactivation after 4 minutes (240,000 milliseconds)
         setTimeout(() => __awaiter(void 0, void 0, void 0, function* () {
             console.log(`Trying to mark session ${newSession._id} inactive...`);
