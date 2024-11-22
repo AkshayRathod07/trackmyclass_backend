@@ -65,7 +65,10 @@ const getLecture = async (req: Request, res: Response) => {
     const organizationId = (req as AuthRequest).organizationId;
     console.log('organizationId:', organizationId);
 
-    const lectures = await Lecture.find({ organizationId });
+    const lectures = await Lecture.find({ organizationId }).populate(
+      'sessionId',
+      'isActive'
+    );
     console.log('lectures:', lectures);
 
     return res.status(200).json({ lectures });
