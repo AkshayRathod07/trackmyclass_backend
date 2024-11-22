@@ -300,8 +300,22 @@ const getMyProfile = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    // @ts-expect-error: TypeScript does not recognize the populated field
+    const organizationName = user.organizationId?.name || '';
+
+    const userData = {
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      organizationId: user.organizationId,
+      profilePic: user.profilePic,
+      phoneNumber: user.phoneNumber,
+      organizationName: organizationName || '',
+    };
+
     return res.status(200).json({
-      user,
+      user: userData,
     });
   } catch (error) {
     console.error('Get my profile error:', error);
