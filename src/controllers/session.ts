@@ -134,6 +134,29 @@ const CreateSession = async (req: Request, res: Response) => {
   }
 };
 
+// deactivating session
+
+const deactivateSession = async (req: Request, res: Response) => {
+  try {
+    const { sessionId } = req.params;
+    const session = await Sessions.findById(sessionId);
+
+    if (!session) {
+      return res.status(404).json({ message: 'Session not found' });
+    }
+
+    await Sessions.findByIdAndUpdate(sessionId, { isActive: false });
+    return res
+      .status(200)
+      .json({ message: 'Session deactivated successfully' });
+  } catch (error) {
+    console.error('Deactivate session error:', error);
+    return res.status(500).json({
+      message: 'An error occurred while deactivating session',
+    });
+  }
+};
+
 // get all sessions
 const getAllSessions = async (req: Request, res: Response) => {
   console.log('started get all sessions api call');
@@ -174,4 +197,4 @@ const deleteSession = async (req: Request, res: Response) => {
   }
 };
 
-export { CreateSession, getAllSessions, deleteSession };
+export { CreateSession, getAllSessions, deleteSession, deactivateSession };

@@ -16,6 +16,27 @@ const createAttendanceSchema = z.object({
   longitude: z.number(),
 });
 
+// Function to calculate the distance between two coordinates
+const calculateDistance = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+) => {
+  const R = 6371e3; // Earth radius in meters
+  const φ1 = (lat1 * Math.PI) / 180; // Convert latitude to radians
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c; // Distance in meters
+};
+
 const markAttendance = async (
   req: Request,
   res: Response,
@@ -62,35 +83,51 @@ const markAttendance = async (
     }
     console.log(getOrganizationLocation);
 
-    if (
-      getOrganizationLocation?.location?.latitude !== result.data.latitude ||
-      getOrganizationLocation?.location?.longitude !== result.data.longitude
-    ) {
-      return res.status(400).json({
-        message: 'You are not in the organization location',
+    // Calculate distance
+    const distance = calculateDistance(
+      result?.data?.latitude,
+      result?.data?.longitude,
+      getOrganizationLocation?.location?.latitude,
+      getOrganizationLocation?.location?.longitude
+    );
+
+    if (distance <= 50) {
+      // Mark attendance logic here
+
+      const studentId = (req as AuthRequest).userId;
+
+      // Check if the student exists
+      const student = await User.findById(studentId);
+      if (!student) {
+        return res.status(400).json({ message: 'Student not found' });
+      }
+
+      // Mark attendance create  in Attendance
+      const newAttendance = await Attendance.create({
+        ...result.data,
+        studentId,
+        lectureId: session.lectureId,
+      });
+
+      return res.status(201).json({
+        Success: true,
+        message: 'Attendance marked successfully',
+        newAttendance,
+      });
+    } else {
+      return res.status(403).json({
+        message: 'You are outside the allowed radius to mark attendance',
       });
     }
 
-    const studentId = (req as AuthRequest).userId;
-
-    // Check if the student exists
-    const student = await User.findById(studentId);
-    if (!student) {
-      return res.status(400).json({ message: 'Student not found' });
-    }
-
-    // Mark attendance create  in Attendance
-    const newAttendance = await Attendance.create({
-      ...result.data,
-      studentId,
-      lectureId: session.lectureId,
-    });
-
-    return res.status(201).json({
-      Success: true,
-      message: 'Attendance marked successfully',
-      newAttendance,
-    });
+    // if (
+    //   getOrganizationLocation?.location?.latitude !== result.data.latitude ||
+    //   getOrganizationLocation?.location?.longitude !== result.data.longitude
+    // ) {
+    //   return res.status(400).json({
+    //     message: 'You are not in the organization location',
+    //   });
+    // }
   } catch (error) {
     console.error('Create attendance error:', error);
     return res.status(500).json({
