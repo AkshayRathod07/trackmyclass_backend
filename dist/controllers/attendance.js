@@ -26,8 +26,20 @@ const createAttendanceSchema = zod_1.z.object({
     latitude: zod_1.z.number(),
     longitude: zod_1.z.number(),
 });
+// Function to calculate the distance between two coordinates
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371e3; // Earth radius in meters
+    const φ1 = (lat1 * Math.PI) / 180; // Convert latitude to radians
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+        Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in meters
+};
 const markAttendance = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e, _f;
     try {
         const result = createAttendanceSchema.safeParse(req.body);
         if (!result.success) {
@@ -61,25 +73,37 @@ const markAttendance = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             });
         }
         console.log(getOrganizationLocation);
-        if (((_c = getOrganizationLocation === null || getOrganizationLocation === void 0 ? void 0 : getOrganizationLocation.location) === null || _c === void 0 ? void 0 : _c.latitude) !== result.data.latitude ||
-            ((_d = getOrganizationLocation === null || getOrganizationLocation === void 0 ? void 0 : getOrganizationLocation.location) === null || _d === void 0 ? void 0 : _d.longitude) !== result.data.longitude) {
-            return res.status(400).json({
-                message: 'You are not in the organization location',
+        // Calculate distance
+        const distance = calculateDistance((_c = result === null || result === void 0 ? void 0 : result.data) === null || _c === void 0 ? void 0 : _c.latitude, (_d = result === null || result === void 0 ? void 0 : result.data) === null || _d === void 0 ? void 0 : _d.longitude, (_e = getOrganizationLocation === null || getOrganizationLocation === void 0 ? void 0 : getOrganizationLocation.location) === null || _e === void 0 ? void 0 : _e.latitude, (_f = getOrganizationLocation === null || getOrganizationLocation === void 0 ? void 0 : getOrganizationLocation.location) === null || _f === void 0 ? void 0 : _f.longitude);
+        if (distance <= 50) {
+            // Mark attendance logic here
+            const studentId = req.userId;
+            // Check if the student exists
+            const student = yield User_1.default.findById(studentId);
+            if (!student) {
+                return res.status(400).json({ message: 'Student not found' });
+            }
+            // Mark attendance create  in Attendance
+            const newAttendance = yield Attendance_1.default.create(Object.assign(Object.assign({}, result.data), { studentId, lectureId: session.lectureId }));
+            return res.status(201).json({
+                Success: true,
+                message: 'Attendance marked successfully',
+                newAttendance,
             });
         }
-        const studentId = req.userId;
-        // Check if the student exists
-        const student = yield User_1.default.findById(studentId);
-        if (!student) {
-            return res.status(400).json({ message: 'Student not found' });
+        else {
+            return res.status(403).json({
+                message: 'You are outside the allowed radius to mark attendance',
+            });
         }
-        // Mark attendance create  in Attendance
-        const newAttendance = yield Attendance_1.default.create(Object.assign(Object.assign({}, result.data), { studentId, lectureId: session.lectureId }));
-        return res.status(201).json({
-            Success: true,
-            message: 'Attendance marked successfully',
-            newAttendance,
-        });
+        // if (
+        //   getOrganizationLocation?.location?.latitude !== result.data.latitude ||
+        //   getOrganizationLocation?.location?.longitude !== result.data.longitude
+        // ) {
+        //   return res.status(400).json({
+        //     message: 'You are not in the organization location',
+        //   });
+        // }
     }
     catch (error) {
         console.error('Create attendance error:', error);

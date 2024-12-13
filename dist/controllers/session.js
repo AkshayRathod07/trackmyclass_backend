@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteSession = exports.getAllSessions = exports.CreateSession = void 0;
+exports.deactivateSession = exports.deleteSession = exports.getAllSessions = exports.CreateSession = void 0;
 const zod_1 = require("zod");
 const User_1 = __importDefault(require("../models/User"));
 const Lecture_1 = __importDefault(require("../models/Lecture"));
@@ -125,6 +125,27 @@ const CreateSession = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.CreateSession = CreateSession;
+// deactivating session
+const deactivateSession = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { sessionId } = req.params;
+        const session = yield Sessions_1.default.findById(sessionId);
+        if (!session) {
+            return res.status(404).json({ message: 'Session not found' });
+        }
+        yield Sessions_1.default.findByIdAndUpdate(sessionId, { isActive: false });
+        return res
+            .status(200)
+            .json({ message: 'Session deactivated successfully' });
+    }
+    catch (error) {
+        console.error('Deactivate session error:', error);
+        return res.status(500).json({
+            message: 'An error occurred while deactivating session',
+        });
+    }
+});
+exports.deactivateSession = deactivateSession;
 // get all sessions
 const getAllSessions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('started get all sessions api call');
