@@ -100,7 +100,7 @@ export default function ({
           <h2>Welcome to ${organization_name}!</h2>
         </div>
         <div class="content">
-          <h1>Hello ${first_name} ${last_name},</h1>
+          <h1>Hello From  ${first_name} ${last_name},</h1>
           <p>You have been invited to join as a ${role}.</p>
           <p>Use the code below to complete your registration:</p>
           <div class="otp-container">
