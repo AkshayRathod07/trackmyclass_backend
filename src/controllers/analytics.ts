@@ -1,87 +1,31 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import Attendance from '../models/Attendance';
 import User from '../models/User';
 import { AuthRequest } from '../middleware/auth';
 import moment from 'moment';
 
-// export const getDailyAnalytics = async (req: Request, res: Response) => {
-//   try {
-//     // const { totalStudents } = req.query;
-
-//     // Fallback to hardcoded value if not passed from frontend
-//     // const TOTAL_STUDENTS = totalStudents ? parseInt(totalStudents as string) : 60;
-
-//     // Fetch daily attendance analytics
-//     const analytics = await Attendance.aggregate([
-//       {
-//         $group: {
-//           _id: {
-//             date: { $dateToString: { format: '%Y-%m-%d', date: '$markedAt' } },
-//             sessionId: '$sessionId',
-//           },
-//           presentStudents: {
-//             $sum: {
-//               $cond: [{ $eq: ['$status', 'Present'] }, 1, 0],
-//             },
-//           },
-//           totalStudents: { $sum: 1 },
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: '$_id.date',
-//           totalLectures: { $sum: 1 },
-//           presentStudents: { $sum: '$presentStudents' },
-//           totalStudents: { $sum: '$totalStudents' },
-//         },
-//       },
-//       { $sort: { _id: 1 } }, // Sort by date
-//     ]);
-
-//     const totalStudents = await User.countDocuments({
-//       role: 'STUDENT',
-//       organizationId: (req as AuthRequest).organizationId,
-//     });
-
-//     console.log('totalStudents:', totalStudents);
-
-//     // Format the response
-//     const formattedAnalytics = analytics.map((entry) => ({
-//       date: entry._id,
-//       totalLectures: entry.totalLectures,
-//       presentStudents: entry.presentStudents,
-//       totalStudents: totalStudents,
-//     }));
-
-//     res.status(200).json({ attendance: formattedAnalytics });
-//   } catch (error) {
-//     console.error('Error generating daily analytics:', error);
-//     res.status(500).json({ error: 'Failed to fetch daily analytics' });
-//   }
-// };
-// todays data only
+// Today's data analytics
 const getDailyAnalytics = async (req: Request, res: Response) => {
   try {
-    const today = moment().startOf('day').toDate(); // Get start of today's date
-    const tomorrow = moment().endOf('day').toDate(); // Get end of today's date
+    const today = moment().startOf('day').toDate();
+    const tomorrow = moment().endOf('day').toDate();
 
-    const analytics = await Attendance.aggregate([
+    // Group by session and collect student data
+    const attendanceData = await Attendance.aggregate([
       { $match: { markedAt: { $gte: today, $lt: tomorrow } } },
       {
         $group: {
           _id: '$sessionId',
-          presentStudents: {
-            $sum: {
-              $cond: [{ $eq: ['$status', 'Present'] }, 1, 0],
+          date: {
+            $first: {
+              $dateToString: { format: '%Y-%m-%d', date: '$markedAt' },
             },
           },
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalLectures: { $sum: 1 },
-          presentStudents: { $sum: '$presentStudents' },
+          studentsPresent: {
+            $push: {
+              $cond: [{ $eq: ['$status', 'Present'] }, '$studentId', null],
+            },
+          },
         },
       },
     ]);
@@ -91,17 +35,23 @@ const getDailyAnalytics = async (req: Request, res: Response) => {
       organizationId: (req as AuthRequest).organizationId,
     });
 
+    // Restructure response
+    const lectures = attendanceData.map((session) => ({
+      date: session.date,
+      studentsPresent: session.studentsPresent.filter(Boolean), // Remove nulls
+    }));
+
     res.status(200).json({
       date: moment(today).format('YYYY-MM-DD'),
-      totalLectures: analytics[0]?.totalLectures || 0,
-      presentStudents: analytics[0]?.presentStudents || 0,
-      totalStudents: totalStudents,
+      totalStudents,
+      lectures,
     });
   } catch (error) {
     console.error('Error generating daily analytics:', error);
     res.status(500).json({ error: 'Failed to fetch daily analytics' });
   }
 };
+
 // Past 7 days' data
 const getWeeklyAnalytics = async (req: Request, res: Response) => {
   try {
@@ -140,35 +90,52 @@ const getWeeklyAnalytics = async (req: Request, res: Response) => {
   }
 };
 
+// Analytics for all dates
 const getAllDatesAnalytics = async (req: Request, res: Response) => {
   try {
-    const analytics = await Attendance.aggregate([
+    const attendanceData = await Attendance.aggregate([
       {
         $group: {
           _id: {
             date: { $dateToString: { format: '%Y-%m-%d', date: '$markedAt' } },
+            sessionId: '$sessionId',
           },
-          presentStudents: {
-            $sum: {
-              $cond: [{ $eq: ['$status', 'Present'] }, 1, 0],
+          studentsPresent: {
+            $push: {
+              $cond: [{ $eq: ['$status', 'Present'] }, '$studentId', null],
             },
           },
-          totalLectures: { $sum: 1 },
         },
       },
-      { $sort: { '_id.date': 1 } },
+      {
+        $group: {
+          _id: '$_id.date',
+          sessions: {
+            $push: {
+              sessionId: '$_id.sessionId',
+              studentsPresent: '$studentsPresent',
+            },
+          },
+        },
+      },
+      { $sort: { _id: 1 } },
     ]);
 
+    const lectures = attendanceData.map((entry) => ({
+      date: entry._id,
+      studentsPresent: entry.sessions.map(
+        (session: { studentsPresent: (string | null)[] }) =>
+          session.studentsPresent.filter(Boolean) // Remove nulls
+      ),
+    }));
+
     res.status(200).json({
-      analytics,
+      lectures,
     });
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json({ error: error.message });
-    } else {
-      res.status(500).json({ error: 'Failed to fetch daily analytics' });
-    }
+  } catch (error) {
+    console.error('Error generating analytics:', error);
+    res.status(500).json({ error: 'Failed to fetch analytics' });
   }
 };
 
-export { getDailyAnalytics, getWeeklyAnalytics, getAllDatesAnalytics };
+export { getDailyAnalytics, getAllDatesAnalytics, getWeeklyAnalytics };
